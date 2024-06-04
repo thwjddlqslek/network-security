@@ -1,7 +1,25 @@
 const express = require('express');
+const session = require('express-session');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+app.use(session({
+  secret: 'thisIsSecret',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // HTTPS를 사용하지 않는 경우 false로 설정
+}));
+
+app.get('/', (req, res) => {
+  if (req.session.viewCount) {
+    req.session.viewCount++;
+  } else {
+    req.session.viewCount = 1;
+  }
+  res.send(`페이지를 ${req.session.viewCount}번 방문했습니다.`);
+});
+
 
 // API 라우트 추가
 app.get('/api', (req, res) => {

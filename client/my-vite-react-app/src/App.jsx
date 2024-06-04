@@ -15,7 +15,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>서버 테스트</h1>
+      <h1>네트워크 보안</h1>
     </div>
   );
 }

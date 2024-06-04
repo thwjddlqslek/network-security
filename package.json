@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "express-session": "^1.18.0"
   },
   "name": "network-security",
   "description": "네트워크 보안 기말 프로젝트",
