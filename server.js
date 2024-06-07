@@ -14,24 +14,37 @@ app.use(cors({
 app.use(session({
   secret: 'thisIsSecret',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { secure: false }
 }));
 
 const users = {
-  user1: 'password1',
-  user2: 'password2'
+  user1: { password: 'password1', role: 'admin' },
+  user2: { password: 'password2', role: 'user' }
 };
 
 // 로그인 엔드포인트
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  if (users[username] && users[username] === password) {
-    req.session.userID = username; // 유저 아이디를 세션에 저장
-    res.status(200).json({ success: true, userID: username });
+  const user = users[username];
+  if (user && user.password === password) {
+    req.session.userID = username;
+    req.session.role = user.role;
+    res.header('X-Session-ID', req.sessionID);
+    res.status(200).json({ success: true, sessionID: req.sessionID, userID: username });
   } else {
     res.status(401).json({ success: false, message: '인증 실패' });
   }
+});
+
+// 로그아웃 엔드포인트
+app.post('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: '로그아웃 실패' });
+    }
+    res.status(200).json({ success: true, message: '로그아웃 성공' });
+  });
 });
 
 // 세션 테스트를 위한 경로
@@ -46,7 +59,7 @@ app.get('/', (req, res) => {
 
 // API 라우트 추가
 app.get('/api', (req, res) => {
-  if (req.session.username) {
+  if (req.session.userID) {
     res.json({ message: 'API 테스트 성공', sessionID: req.sessionID });
   } else {
     res.status(401).json({ message: '로그인 필요' });
